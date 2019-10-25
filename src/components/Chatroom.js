@@ -1,5 +1,7 @@
 import React from 'react'
 import { url } from '../constants'
+import { connect } from 'react-redux'
+import { addMessages } from '../actions'
 
 class Chatroom extends React.Component {
   state = {
@@ -9,7 +11,7 @@ class Chatroom extends React.Component {
   source = new EventSource(`${url}/stream`)
 
   componentDidMount() {
-    console.log('component Did Mount of chat room component')
+    // console.log('component Did Mount of chat room component')
     // console.log('url is:', url)
 
     this.source.onmessage = event => {
@@ -18,21 +20,31 @@ class Chatroom extends React.Component {
       this.setState({
         message
       })
+      this.props.addMessages(message)
     }
-    console.log("source", this.source);
+    // console.log("source", this.source);
   }
 
   render() {
-    console.log("local state", this.state)
+    // console.log("local state", this.state)
+    if (!this.props.messages) return "wait for messages"
     return (
-      <div>
-        <ul>
-          {this.state.message.map(message => <li key={message.id}>{message.message}</li>)}
+      <div className="w3-container">
+        <ul className="w3-ul w3-card">
+          {this.props.messages.map(message => <li key={message.id}>{message.message}</li>)}
         </ul>
       </div>
     )
   }
 }
 
-export default Chatroom
+
+const mapStateToProps = state => {
+  console.log('mstp of chatroom component', state)
+  return {
+    messages: state.message
+  }
+}
+
+export default connect(mapStateToProps, { addMessages })(Chatroom)
 
